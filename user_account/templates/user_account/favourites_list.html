@@ -1,0 +1,9 @@
+{% if favourites %}
+    <ul>
+        {% for favourite in favourites %}
+            <li>{{ favourite.anime.title_english }}</li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>You don't have any favorite anime yet.</p>
+{% endif %}

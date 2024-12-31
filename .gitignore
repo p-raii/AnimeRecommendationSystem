@@ -1,0 +1,49 @@
+# Python bytecode files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Django migrations folder
+*/migrations/
+
+# SQLite database files (if present in the project)
+*.sqlite3
+
+# PostgreSQL database-related files (these aren't committed to Git)
+*.db
+*.sql
+*.psql
+
+# Virtual environment directories
+venv/
+env/
+.venv/
+.env/
+
+# Django secret key file (if you're using one, it's usually in .env)
+.secret_key/
+
+# .env files (for environment variables, database credentials, etc.)
+.env
+
+# IDE and editor-specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.bak
+*.swm
+
+# macOS and Windows system files
+.DS_Store
+Thumbs.db
+
+# Test/coverage reports
+.coverage
+.nox/
+.tox/
+
+# Backup files
+*.bak
+*.tmp

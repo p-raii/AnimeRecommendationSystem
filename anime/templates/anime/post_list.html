@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anime Search</title>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <ul>
+            {% if user.is_authenticated %}
+                <li>Welcome, {{ user.username }}!</li>
+                <li><a href="{% url 'user_account:profile' %}">Profile</a></li>
+                <li><a href="{% url 'user_account:logout' %}">Logout</a></li>
+            {% else %}
+                <li><a href="{% url 'user_account:login' %}">Login</a></li>
+                <li><a href="{% url 'user_account:register' %}">Register</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    <!-- Search Form -->
+    <form method="GET" action="{% url 'anime:post_list' %}">
+        <input type="text" name="search" placeholder="Search for anime..." value="{{ search_query }}">
+        <button type="submit">Search</button>
+    </form>
+
+    <!-- Anime List -->
+    <ul>
+        {% for post in posts %}
+            <li>{{ post.title_english }}</li>
+        {% empty %}
+            <li>No anime found.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
