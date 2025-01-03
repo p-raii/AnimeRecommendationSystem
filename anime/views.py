@@ -5,7 +5,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import AnimeDataSerializer
-
+import gensim
+from django.db.models import Q
+from itertools import chain
 # Create your views here.
 def post_list(request):
     # Get the search query from URL parameters
@@ -13,7 +15,24 @@ def post_list(request):
 
     # Filter the posts based on the search query
     if search_query:
-        posts = AnimeData.objects.filter(title_english__icontains=search_query)  # Case-insensitive search
+        searched_anime = AnimeData.objects.filter(
+    Q(title_english__icontains=search_query) |
+    Q(title_romanji__icontains=search_query) ).first()
+
+        AnimeKeyedVector = gensim.models.KeyedVectors.load("./anime/AnimeKeyedVectors.kv")
+
+        
+        similar_anime=AnimeKeyedVector.most_similar(
+                positive=[str(searched_anime.id)],
+                topn=25,
+            )
+        similar_anime_ids=[anime[0] for anime in similar_anime]
+        print(similar_anime_ids)
+        similar_anime = AnimeData.objects.filter(id__in=similar_anime_ids)
+         # Case-insensitive search
+        posts =  AnimeData.objects.filter(id=searched_anime.id) |similar_anime 
+
+        # print (posts)
     else:
         posts = AnimeData.objects.all()[:10]  # Display all if no search query, with limit to 10 posts
 

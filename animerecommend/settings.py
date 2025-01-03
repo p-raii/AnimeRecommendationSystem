@@ -81,15 +81,7 @@ WSGI_APPLICATION = 'animerecommend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'anime_details',
 
-        'USER': 'postgres',
-
-        'PASSWORD': '6410',
-
-        'HOST': 'localhost',
-
-        'PORT': '5432',
         'NAME': config('DB_NAME'),
         'USER': config('DB_USER'),
         'PASSWORD': config('DB_PASSWORD'),

@@ -29,7 +29,11 @@
     <!-- Anime List -->
     <ul>
         {% for post in posts %}
-            <li>{{ post.title_english }}</li>
+            <li>{% if post.title_english %}
+                {{ post.title_english }}
+            {% else %}
+            {{ post.title_romanji }}
+            {% endif %}</li>
         {% empty %}
             <li>No anime found.</li>
         {% endfor %}
