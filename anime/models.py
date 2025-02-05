@@ -17,6 +17,7 @@ class AnimeData(models.Model):
     release_date = models.DateField(blank=True, null=True)
     staff = models.TextField(blank=True, null=True)
     studio = models.CharField(max_length=255, blank=True, null=True)
+    image_url = models.URLField(max_length=200,blank=True, null=True)
 
     # Explicitly set the 'id' field without auto incrementing
     id = models.IntegerField(primary_key=True)

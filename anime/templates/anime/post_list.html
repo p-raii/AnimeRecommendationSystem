@@ -33,7 +33,21 @@
                 {{ post.title_english }}
             {% else %}
             {{ post.title_romanji }}
-            {% endif %}</li>
+            {% endif %}
+          <!-- {% if post.trailer %} -->
+            <div>
+                <!-- Remove 'youtube:' prefix from trailer and embed video -->
+                <!-- <iframe width="560" height="315"  -->
+                <!-- src="https://www.youtube.com/embed/{{ post.trailer|slice:'8:' }}"  -->
+                <!-- frameborder="0"  -->
+                <!-- allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"  -->
+                <!-- allowfullscreen></iframe> -->
+            <!-- </div> -->
+        <!-- {% else %} -->
+            <!-- <p>No trailer available.</p> -->
+        <!-- {% endif %}</li> -->
+        <img src="{{ post.image_url }}" alt="Anime Cover" />
+
         {% empty %}
             <li>No anime found.</li>
         {% endfor %}
