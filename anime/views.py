@@ -1,18 +1,15 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import AnimeData
 from staff.models import StaffData
-
 from user_account.models import Favourite
-from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import AnimeDataSerializer
 from .serializers import StaffDataSerializer
 import gensim
 from django.db.models import Q
-from itertools import chain
-from rest_framework.decorators import api_view
-from .trie import trie
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 # Create your views here.
 
 
@@ -23,8 +20,9 @@ def get_all_anime_api( request):
     anime_data = AnimeData.objects.all()  # Get all anime data
     serializer = AnimeDataSerializer(anime_data, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)  # Return serialized data
-    
+
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def anime_search_api(request):
     search_query = request.GET.get('search', '')  # e.g. ?search=Naruto
 
@@ -83,6 +81,8 @@ def anime_search_api(request):
     # Serialize the queryset
     serializer = AnimeDataSerializer(posts, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 
 def post_list(request):
     # Get the search query from URL parameters
