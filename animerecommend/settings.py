@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'anime',
+    'staff',
     'user_account',
     'rest_framework',
 
