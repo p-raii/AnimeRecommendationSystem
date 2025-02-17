@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import AnimeDataSerializer
+from .serializers import StaffDataSerializer
 import gensim
 from django.db.models import Q
 from itertools import chain
@@ -28,27 +29,53 @@ def anime_search_api(request):
     search_query = request.GET.get('search', '')  # e.g. ?search=Naruto
 
     if search_query:
+        
+
         searched_anime = AnimeData.objects.filter(
             Q(title_english__icontains=search_query) |
             Q(title_romanji__icontains=search_query)
         ).first()
 
-        if not searched_anime:
-            return Response({"error": "No anime found with that title."}, status=status.HTTP_404_NOT_FOUND)
-
-        AnimeKeyedVector = gensim.models.KeyedVectors.load("./anime/AnimeKeyedVectors.kv")
         
-        similar_anime = AnimeKeyedVector.most_similar(
-            positive=[str(searched_anime.id)],
-            topn=25,
-        )
-        similar_anime_ids = [anime[0] for anime in similar_anime]
+        if searched_anime:        
 
-        # Get the AnimeData objects for those IDs
-        similar_anime_qs = AnimeData.objects.filter(id__in=similar_anime_ids)
+            AnimeKeyedVector = gensim.models.KeyedVectors.load("./anime/AnimeKeyedVectors.kv")
+            
+            similar_anime = AnimeKeyedVector.most_similar(
+                positive=[str(searched_anime.id)],
+                topn=25,
+            )
+            similar_anime_ids = [anime[0] for anime in similar_anime]
 
-        # Combine searched anime with similar ones
-        posts = AnimeData.objects.filter(id=searched_anime.id) | similar_anime_qs
+            # Get the AnimeData objects for those IDs
+            similar_anime_qs = AnimeData.objects.filter(id__in=similar_anime_ids)
+
+            # Combine searched anime with similar ones
+            posts = AnimeData.objects.filter(id=searched_anime.id) | similar_anime_qs
+
+        if not searched_anime:
+            searched_staff = StaffData.objects.filter(
+        Q(name_full__icontains=search_query) |
+        Q(name_native__icontains=search_query) ).first()
+
+            staffKeyedVector = gensim.models.KeyedVectors.load("./staff/StaffKeyedVectors60.kv")
+
+            
+            similar_staff=staffKeyedVector.most_similar(
+                    positive=[str(searched_staff.id)],
+                    topn=25,
+                )
+            similar_staff_ids=[staff[0] for staff in similar_staff]
+            # print(similar_staff_ids)
+            similar_staff = StaffData.objects.filter(id__in=similar_staff_ids)
+            # Case-insensitive search
+            posts=  StaffData.objects.filter(id=searched_staff.id) |similar_staff 
+            serializer = StaffDataSerializer(posts, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+
     else:
         # If no search query, return first 10 as a fallback
         posts = AnimeData.objects.all()[:10]
@@ -108,7 +135,8 @@ def post_list(request):
             # print(similar_staff_ids)
             similar_staff = StaffData.objects.filter(id__in=similar_staff_ids)
             # Case-insensitive search
-            posts =  StaffData.objects.filter(id=searched_staff.id) |similar_staff 
+            postss =  StaffData.objects.filter(id=searched_staff.id) |similar_staff 
+            return render(request, 'anime/post_list.html', {'postss': postss, 'search_query': search_query})
 
         # print (posts)  # Display all if no search query, with limit to 10 posts
 
