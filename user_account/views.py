@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework import status
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import authenticate, login
-from .models import Favourite
+from .models import Favourite, StaffFavourite
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout
@@ -14,7 +14,7 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from anime.models import AnimeData
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .serializers import FavouriteSerializer
+from .serializers import FavouriteSerializer, StaffFavouriteSerializer
 
 
 
@@ -82,6 +82,34 @@ def add_favourite(request):
         except Favourite.DoesNotExist:
             return Response({"error": "Favourite not found!"}, status=status.HTTP_404_NOT_FOUND)
 
+
+@api_view(['GET', 'POST', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def add_favourite_staff(request):
+    if request.method == 'POST':
+        serializer = StaffFavouriteSerializer(data=request.data, context={'request': request})
+
+        if serializer.is_valid():
+            serializer.save(user=request.user)  # Saves the favourite
+            return Response({"message": "Staff added to favorites successfully!"}, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    elif request.method == 'GET':
+        # Get all favorites of the user
+        favourites = StaffFavourite.objects.filter(user=request.user)
+        serializer = StaffFavouriteSerializer(favourites, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    elif request.method == 'DELETE':
+        # Remove a favorite
+        staff_id = request.data.get('staff')  # Assuming anime_id is passed in request body
+        try:
+            favourite = StaffFavourite.objects.get(user=request.user, staff=staff_id)
+            favourite.delete()
+            return Response({"message": "Staff removed from favorites successfully!"}, status=status.HTTP_200_OK)
+        except StaffFavourite.DoesNotExist:
+            return Response({"error": "Favourite not found!"}, status=status.HTTP_404_NOT_FOUND)
 
 # Registration view
 def register(request):

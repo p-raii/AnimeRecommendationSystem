@@ -16,4 +16,3 @@ class StaffData(models.Model):
 
     def __str__(self):
         return self.name_full  # To display the staff name when accessing the model
-
