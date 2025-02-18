@@ -8,13 +8,16 @@ from .serializers import StaffDataSerializer
 import gensim
 from django.db.models import Q
 from itertools import chain
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated, AllowAny
+
 # Create your views here.
 
 
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def get_all_staff_api( request):
     staff_data = StaffData.objects.all()  # Get all staff data
     serializer = StaffDataSerializer(staff_data, many=True)

@@ -9,13 +9,18 @@ from .models import Favourite
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
+from anime.models import AnimeData
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from .serializers import FavouriteSerializer
+
 
 
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def register_user(request):
     # Extract the data from the request body
     form = UserCreationForm(request.data)
@@ -30,6 +35,7 @@ def register_user(request):
         return Response({"errors": form.errors}, status=status.HTTP_400_BAD_REQUEST)
     
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def login_user(request):
     # Get username and password from the request body
     username = request.data.get('username')
@@ -49,6 +55,17 @@ def login_user(request):
     else:
         # If authentication fails, return error
         return Response({"error": "Invalid credentials."}, status=status.HTTP_401_UNAUTHORIZED)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_favourite(request):
+    serializer = FavouriteSerializer(data=request.data, context={'request': request})
+
+    if serializer.is_valid():
+        serializer.save(user=request.user)  # Saves the favourite
+        return Response({"message": "Anime added to favorites successfully!"}, status=status.HTTP_201_CREATED)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 # Registration view
 def register(request):
@@ -96,3 +113,5 @@ def profile(request):
 def logout_view(request):
     logout(request)  # This logs the user out
     return redirect('anime:post_list') 
+
+

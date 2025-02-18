@@ -10,6 +10,7 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
     path('api/register/', views.register_user, name='register_user'),
     path('api/login/', views.login_user, name='login_user'),
+    path('api/favourite/', views.add_favourite, name='add_favourite'),
 
 
     

@@ -9,20 +9,21 @@ from .serializers import StaffDataSerializer
 import gensim
 from django.db.models import Q
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 # Create your views here.
 
 
 
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def get_all_anime_api( request):
     anime_data = AnimeData.objects.all()  # Get all anime data
     serializer = AnimeDataSerializer(anime_data, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)  # Return serialized data
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def anime_search_api(request):
     search_query = request.GET.get('search', '')  # e.g. ?search=Naruto
 
