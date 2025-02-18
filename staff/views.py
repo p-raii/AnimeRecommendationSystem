@@ -17,7 +17,6 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
 def get_all_staff_api( request):
     staff_data = StaffData.objects.all()  # Get all staff data
     serializer = StaffDataSerializer(staff_data, many=True)

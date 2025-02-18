@@ -20,7 +20,6 @@ from .serializers import FavouriteSerializer
 
 
 @api_view(['POST'])
-@permission_classes([AllowAny])
 def register_user(request):
     # Extract the data from the request body
     form = UserCreationForm(request.data)
@@ -35,7 +34,6 @@ def register_user(request):
         return Response({"errors": form.errors}, status=status.HTTP_400_BAD_REQUEST)
     
 @api_view(['POST'])
-@permission_classes([AllowAny])
 def login_user(request):
     # Get username and password from the request body
     username = request.data.get('username')

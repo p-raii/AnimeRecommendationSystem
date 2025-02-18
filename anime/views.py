@@ -16,14 +16,12 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
 def get_all_anime_api( request):
     anime_data = AnimeData.objects.all()  # Get all anime data
     serializer = AnimeDataSerializer(anime_data, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)  # Return serialized data
 
 @api_view(['GET'])
-@permission_classes([AllowAny])
 def anime_search_api(request):
     search_query = request.GET.get('search', '')  # e.g. ?search=Naruto
 
