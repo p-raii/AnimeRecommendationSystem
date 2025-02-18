@@ -26,6 +26,8 @@ urlpatterns = [
     path('api/staff/', include('staff.urls',namespace='staff')),
     path('api/anime/', include('anime.urls',namespace='anime')),
     path('api/recommend/', include('anime.urls',namespace='anime')),
+    path('api/staffrecommend/', include('anime.urls',namespace='anime')),
+
 
 
 ]

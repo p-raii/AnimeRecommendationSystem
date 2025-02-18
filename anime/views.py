@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import AnimeData
 from staff.models import StaffData
-from user_account.models import Favourite
+from user_account.models import Favourite, StaffFavourite
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import AnimeDataSerializer
@@ -106,6 +106,29 @@ def anime_recommend(request):
     serializer = AnimeDataSerializer(similar_anime_qs, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def staff_recommend(request):
+    user = request.user
+
+    # Step 1: Get all favorite anime IDs of the user
+    favourite_staff_ids = StaffFavourite.objects.filter(user=user).values_list('staff', flat=True)
+
+    if not favourite_staff_ids:
+        return Response({"message": "No favorites found. Add favorites to get recommendations."}, status=status.HTTP_400_BAD_REQUEST)
+        
+    StaffKeyedVector = gensim.models.KeyedVectors.load("./staff/StaffKeyedVectors60.kv")
+    
+    similar_staff = StaffKeyedVector.most_similar(
+        positive=[str(id) for id in favourite_staff_ids],
+        topn=25,
+    )
+    similar_staff_ids = [staff[0] for staff in similar_staff]
+
+    # Get the AnimeData objects for those IDs
+    similar_staff_qs = StaffData.objects.filter(id__in=similar_staff_ids)
+    serializer = StaffDataSerializer(similar_staff_qs, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 
