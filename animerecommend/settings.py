@@ -29,7 +29,7 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173/",  # Allow frontend requests
+    "http://localhost:5173",  # Allow frontend requests
 ]
 # Application definition
 REST_FRAMEWORK = {
