@@ -54,17 +54,35 @@ def login_user(request):
         # If authentication fails, return error
         return Response({"error": "Invalid credentials."}, status=status.HTTP_401_UNAUTHORIZED)
 
-@api_view(['POST'])
+@api_view(['GET', 'POST', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def add_favourite(request):
-    serializer = FavouriteSerializer(data=request.data, context={'request': request})
+    if request.method == 'POST':
+        serializer = FavouriteSerializer(data=request.data, context={'request': request})
 
-    if serializer.is_valid():
-        serializer.save(user=request.user)  # Saves the favourite
-        return Response({"message": "Anime added to favorites successfully!"}, status=status.HTTP_201_CREATED)
+        if serializer.is_valid():
+            serializer.save(user=request.user)  # Saves the favourite
+            return Response({"message": "Anime added to favorites successfully!"}, status=status.HTTP_201_CREATED)
 
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+    elif request.method == 'GET':
+        # Get all favorites of the user
+        favourites = Favourite.objects.filter(user=request.user)
+        serializer = FavouriteSerializer(favourites, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    elif request.method == 'DELETE':
+        # Remove a favorite
+        anime_id = request.data.get('anime')  # Assuming anime_id is passed in request body
+        try:
+            favourite = Favourite.objects.get(user=request.user, anime=anime_id)
+            favourite.delete()
+            return Response({"message": "Anime removed from favorites successfully!"}, status=status.HTTP_200_OK)
+        except Favourite.DoesNotExist:
+            return Response({"error": "Favourite not found!"}, status=status.HTTP_404_NOT_FOUND)
+
+
 # Registration view
 def register(request):
     if request.method == 'POST':

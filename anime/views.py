@@ -40,7 +40,7 @@ def anime_search_api(request):
             
             similar_anime = AnimeKeyedVector.most_similar(
                 positive=[str(searched_anime.id)],
-                topn=25,
+                topn=53,
             )
             similar_anime_ids = [anime[0] for anime in similar_anime]
 
@@ -60,7 +60,7 @@ def anime_search_api(request):
             
             similar_staff=staffKeyedVector.most_similar(
                     positive=[str(searched_staff.id)],
-                    topn=25,
+                    topn=53,
                 )
             similar_staff_ids=[staff[0] for staff in similar_staff]
             # print(similar_staff_ids)
@@ -75,11 +75,37 @@ def anime_search_api(request):
 
     else:
         # If no search query, return first 10 as a fallback
-        posts = AnimeData.objects.all()[:10]
+        posts = AnimeData.objects.all()
 
     # Serialize the queryset
     serializer = AnimeDataSerializer(posts, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def anime_recommend(request):
+    user = request.user
+
+    # Step 1: Get all favorite anime IDs of the user
+    favourite_anime_ids = Favourite.objects.filter(user=user).values_list('anime', flat=True)
+
+    if not favourite_anime_ids:
+        return Response({"message": "No favorites found. Add favorites to get recommendations."}, status=status.HTTP_400_BAD_REQUEST)
+        
+    AnimeKeyedVector = gensim.models.KeyedVectors.load("./anime/AnimeKeyedVectors.kv")
+    
+    similar_anime = AnimeKeyedVector.most_similar(
+        positive=[str(id) for id in favourite_anime_ids],
+        topn=25,
+    )
+    similar_anime_ids = [anime[0] for anime in similar_anime]
+
+    # Get the AnimeData objects for those IDs
+    similar_anime_qs = AnimeData.objects.filter(id__in=similar_anime_ids)
+    serializer = AnimeDataSerializer(similar_anime_qs, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 
 
