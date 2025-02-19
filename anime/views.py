@@ -89,6 +89,11 @@ def anime_recommend(request):
 
     # Step 1: Get all favorite anime IDs of the user
     favourite_anime_ids = Favourite.objects.filter(user=user).values_list('anime', flat=True)
+    if not favourite_anime_ids:
+        posts = AnimeData.objects.all()
+        serializer = AnimeDataSerializer(posts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
     if not favourite_anime_ids:
         return Response({"message": "No favorites found. Add favorites to get recommendations."}, status=status.HTTP_400_BAD_REQUEST)
